@@ -1,0 +1,130 @@
+/* Dunkle Bühne wie im Rendering, Licht der LED als Akzent, Texte als Karten links, Kamerabild rechts */
+:root {
+  color-scheme: dark;
+  --bg: #2b2219;
+  --bg-deep: #17120d;
+  --bg-glow: #3b2e22;
+  --panel: #1d1712;
+  --line: #3a2f26;
+  --ink: #f1e8dd;
+  --ink-soft: #bfae9c;
+  --walnut: #e2a868;
+  --brass: #c79b57;
+  --card: rgba(24, 19, 14, 0.72);
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans: "Jost", "Futura", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+h1, h2 { font-family: var(--serif); font-weight: 500; line-height: 1.05; margin: 0 0 .5em; }
+.eyebrow {
+  font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--brass); font-weight: 500; margin: 0 0 .9em;
+}
+
+/* ---------- Scroll-Bühne ---------- */
+#tour { position: relative; height: calc(11 * 100vh); }
+.stage {
+  position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
+  background: radial-gradient(ellipse at 62% 45%, var(--bg-glow) 0%, var(--bg) 45%, var(--bg-deep) 100%);
+}
+/* Bild genau so groß wie das Rendering (4:5), Ränder laufen weich in den Hintergrund aus */
+.stills img {
+  position: absolute; top: 0; left: 62%; translate: -50% 0;
+  height: 100%; width: auto; aspect-ratio: 4 / 5; max-width: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+  opacity: 0; will-change: opacity, transform;
+}
+.sequence { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stills img[data-wp="0"] { opacity: 1; }
+.sequence { display: none; }
+.use-sequence .stills { display: none; }
+.use-sequence .sequence { display: block; }
+
+/* Texte */
+.captions { position: absolute; inset: 0; pointer-events: none; }
+.cap {
+  position: absolute; left: clamp(24px, 6vw, 96px); top: 50%;
+  width: min(420px, 38vw);
+  transform: translateY(-50%);
+  padding: 28px 30px; border-radius: 4px;
+  background: var(--card);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px -30px rgba(0, 0, 0, .7); border: 1px solid var(--line);
+  opacity: 0; visibility: hidden;
+  will-change: opacity, transform;
+}
+.cap h2 { font-size: clamp(1.7rem, 2.6vw, 2.4rem); }
+.cap p { margin: 0 0 .8em; font-size: .97rem; color: var(--ink-soft); }
+.cap p:last-child { margin-bottom: 0; }
+.cap--accent .eyebrow { color: var(--walnut); }
+
+.cap--hero { background: none; box-shadow: none; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 0; }
+.cap--hero h1 { font-size: clamp(3.4rem, 6.4vw, 6.2rem); font-weight: 600; letter-spacing: .02em; color: var(--walnut); margin-bottom: .1em; }
+.cap--hero .lead { font-family: var(--serif); font-size: clamp(1.4rem, 2.4vw, 2rem); color: var(--ink); line-height: 1.25; }
+.hint { margin-top: 2.2em !important; font-size: .78rem !important; letter-spacing: .14em; text-transform: uppercase; }
+.hint::after { content: ""; display: block; width: 1px; height: 46px; margin-top: 14px; background: var(--ink-soft); animation: drip 2.2s ease-in-out infinite; transform-origin: top; }
+@keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+.more { pointer-events: auto; display: inline-block; margin-top: 1em; color: var(--walnut); font-weight: 500; text-decoration: none; border-bottom: 1px solid currentColor; }
+
+/* Kapitel-Punkte */
+.dots { position: absolute; right: calc(clamp(14px, 2.5vw, 32px) + env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; }
+.dots button {
+  width: 9px; height: 9px; padding: 0; border-radius: 50%; border: 1px solid var(--ink-soft);
+  background: transparent; cursor: pointer; transition: background .3s, transform .3s;
+}
+.dots button.on { background: var(--walnut); border-color: var(--walnut); transform: scale(1.35); }
+
+/* ---------- Entstehung ---------- */
+.making { background: var(--panel); padding: clamp(72px, 12vw, 140px) 0; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.making h2 { font-size: clamp(2.2rem, 4.5vw, 3.6rem); }
+.intro { max-width: 640px; color: var(--ink-soft); font-size: 1.05rem; margin: 0 0 48px; }
+.gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.gallery figure { margin: 0; }
+.gallery img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; border-radius: 3px; }
+.gallery figcaption { font-size: .82rem; color: var(--ink-soft); margin-top: 8px; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 32px; margin: 72px 0 0; padding-top: 40px; border-top: 1px solid var(--line); }
+.facts dt { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); font-weight: 500; }
+.facts dd { margin: 4px 0 0; font-family: var(--serif); font-size: 1.35rem; line-height: 1.25; }
+
+.foot { padding: 40px 16px; text-align: center; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); background: var(--bg-deep); border-top: 1px solid var(--line); }
+
+/* ---------- Handy ---------- */
+@media (max-width: 760px) {
+  .stills img {
+    left: 50%; width: 100%; height: auto;
+    -webkit-mask-image: linear-gradient(transparent, #000 6%, #000 78%, transparent 100%);
+            mask-image: linear-gradient(transparent, #000 6%, #000 78%, transparent 100%);
+  }
+  .cap {
+    left: 16px; right: 16px; width: auto; top: auto; bottom: 18px;
+    transform: none; padding: 20px 20px 18px;
+  }
+  .cap h2 { font-size: 1.6rem; }
+  .cap p { font-size: .9rem; }
+  .cap--hero { bottom: 28px; }
+  .cap--hero h1 { font-size: 3.6rem; }
+  .dots { right: 10px; top: 38%; gap: 9px; }
+  .dots button { width: 7px; height: 7px; }
+  .gallery { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .facts { grid-template-columns: 1fr 1fr; gap: 22px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint::after { animation: none; }
+}
