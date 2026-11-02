@@ -9,8 +9,9 @@ Scroll-Seite zum Meisterstück. Beim Scrollen fährt die Kamera die 11 Punkte de
 | `index.html` | Seite mit allen Texten. Die Texte stehen in den `<article class="cap">`-Blöcken und lassen sich direkt ändern. |
 | `style.css` | Gestaltung |
 | `main.js` | Scroll-Logik, Standbilder oder Bildsequenz |
-| `frames/d/` | Kamerafahrt, 401 Bilder für Desktop (1080 × 1350, ca. 16 MB) |
-| `frames/m/` | dieselbe Fahrt fürs Handy (720 × 900, ca. 9 MB) |
+| `frames/d/` | Kamerafahrt, 401 Bilder für Desktop (1440 × 1800, ca. 31 MB) |
+| `frames/m/` | dieselbe Fahrt fürs Handy (900 × 1125, ca. 14 MB) |
+| `frames/s/` | 11 scharfe 4K-Standbilder (2160 × 2700), je eins pro Kamerapunkt |
 | `img/` | Modellfotos für die Entstehung |
 | `qr_skyliner.png` / `.svg` | QR-Code auf `https://daaave-12.github.io/skyliner/` |
 
@@ -25,12 +26,10 @@ Der QR-Code zeigt genau auf diese Adresse. Heißt das Repository anders, muss de
 
 ## Kamerafahrt
 
-Die Kamerafahrt ist fertig gerendert und eingeschaltet (`SEQUENCE.enabled = true` in `main.js`). Sie stammt aus `Skyliner_Webseite.blend`: dunkle Szene mit Wand dahinter, das LED-Dreieck auf der Rückseite strahlt an die Wand, die Türen öffnen sich und der Drehteller mit den Weinflaschen dreht sich.
+Die Fahrt stammt aus `Skyliner_Webseite.blend` und wurde in 4K (2160 × 2700) ohne Motion Blur gerendert, die Originale liegen auf dem PC im Ordner `frames4k`. Die 11 Kamerapunkte (Frame 1, 121, 241 … 1201):
 
-Neu rendern, falls sich am Modell etwas ändert:
+0 Start von rechts auf 1,85 m · 1 linke Seite · 2 Material · 3 Griff · 4 Sockel · 5 Öffnen · 6 Innenraum · 7 Andenken · 8 Wein und Whisky · 9 Schubladen von schräg oben · 10 Schluss frontal
 
-1. Kamera `Skyliner_ScrollCam` aktiv lassen, Frames 1 bis 1201, Frame Step 3 (ergibt 401 Bilder), Format WebP, Qualität ca. 75.
-2. Desktop 1080 × 1350 nach `frames/d/####.webp`. Blender nummeriert 0001, 0004, 0007 … 1201, genau so liest die Seite sie ein.
-3. Die Handy-Bilder in `frames/m/` sind dieselben Bilder auf 720 × 900 verkleinert.
+An jedem Punkt ersetzt die Seite genau dieses eine Bild durch das 4K-Standbild aus `frames/s/`, ohne Überblendung. Dazwischen laufen die verkleinerten Bilder aus `frames/d` (Computer) bzw. `frames/m` (Handy).
 
-Die Seite lädt zuerst jedes 32. Bild und füllt dann auf, sodass sie sofort benutzbar ist. Wird die Sequenz ausgeschaltet, überblendet die Seite stattdessen die 11 Kamerapunkte als Standbilder.
+Neu rendern: Frames 1 bis 1201, Frame Step 3, WebP. Desktop- und Handy-Bilder sind die 4K-Bilder verkleinert, die Standbilder sind die 4K-Bilder der Frames 1 + 120 × Punkt.

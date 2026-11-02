@@ -1,9 +1,7 @@
 // Skyliner – scroll-gekoppelte Kamerafahrt
 //
-// Zwei Modi:
-//  - Standbilder (Standard): die 11 Kamerapunkte R01–R10 (+ Schluss) werden beim Scrollen überblendet.
-//  - Bildsequenz: sobald die Blender-Kamerafahrt als Einzelbilder in frames/ liegt, SEQUENCE.enabled = true setzen.
-//    Dann bestimmt der Scroll-Fortschritt direkt den Frame (Kamera fährt Punkt zu Punkt, Türen öffnen sich).
+// Der Scroll-Fortschritt wählt das Bild der Blender-Kamerafahrt (401 Bilder, 11 Kamerapunkte).
+// An jedem Kamerapunkt wird genau dieses eine Bild durch ein scharfes 4K-Standbild ersetzt.
 
 const SEQUENCE = {
   enabled: true,
@@ -13,17 +11,18 @@ const SEQUENCE = {
 
 const WAYPOINTS = 11;
 
-// Scharfe Standbilder (ohne Motion Blur) für einzelne Kamerapunkte, werden am Punkt eingeblendet
-const HOLDS = { 4: "frames/griff.webp" };
-const holdImgs = {};
-for (const [wp, src] of Object.entries(HOLDS)) { const im = new Image(); im.src = src; im.onload = () => { lastDrawn = -1; update(); }; holdImgs[wp] = im; }
-function holdAt(p) {
-  for (const wp in holdImgs) {
-    const a = 1 - smooth(0.1, 0.32, Math.abs(p - wp));
-    if (a > 0 && holdImgs[wp].complete && holdImgs[wp].naturalWidth) return { img: holdImgs[wp], a: Math.round(a * 50) / 50 };
+// Scharfe 4K-Standbilder: an jedem Kamerapunkt ersetzt genau ein Bild der Fahrt (ohne Überblendung)
+const STEP = (SEQUENCE.count - 1) / (WAYPOINTS - 1);   // 40 Bilder zwischen zwei Punkten
+const stillImgs = [];
+function loadStills() {
+  for (let w = 0; w < WAYPOINTS; w++) {
+    const im = new Image();
+    im.decoding = "async";
+    im.onload = () => { stillImgs[w] = im; lastDrawn = -1; update(); };
+    im.src = `frames/s/${String(w).padStart(2, "0")}.webp`;
   }
-  return null;
 }
+
 const tour = document.getElementById("tour");
 const stage = tour.querySelector(".stage");
 const stills = [...tour.querySelectorAll(".stills img")];
@@ -100,16 +99,19 @@ function sizeCanvas() {
   lastDrawn = -1;
 }
 
-function drawFrame(i, hold = null) {
+function drawFrame(i) {
   // nächsten bereits geladenen Frame nehmen
   let j = -1;
   for (let d = 0; d < SEQUENCE.count; d++) {
     if (frames[i - d]) { j = i - d; break; }
     if (frames[i + d]) { j = i + d; break; }
   }
-  const key = j + (hold ? "h" + hold.a : "");
-  if (j < 0 || key === lastDrawn) return;
-  const img = frames[j];
+  const wp = i / STEP;
+  const still = Number.isInteger(wp) ? stillImgs[wp] : null;
+  if (j < 0 && !still) return;
+  const key = still ? "s" + wp : j;
+  if (key === lastDrawn) return;
+  const img = still || frames[j];
   const ctx = canvas.getContext("2d");
   const cw = canvas.width, ch = canvas.height;
   const s = Math.min(cw / img.width, ch / img.height);
@@ -121,7 +123,6 @@ function drawFrame(i, hold = null) {
   ctx.clearRect(0, 0, cw, ch);
   ctx.globalCompositeOperation = "source-over";
   ctx.drawImage(img, x, y, w, h);
-  if (hold) { ctx.globalAlpha = hold.a; ctx.drawImage(hold.img, x, y, w, h); ctx.globalAlpha = 1; }
   // Bildränder weich in den dunklen Hintergrund auslaufen lassen
   const g = mobile ? ctx.createLinearGradient(0, y, 0, y + h) : ctx.createLinearGradient(x, 0, x + w, 0);
   const a = mobile ? 0.06 : 0.16, b = mobile ? 0.22 : 0.16;
@@ -152,7 +153,7 @@ function renderCaptions(p) {
 
 function update() {
   const p = progress();
-  if (SEQUENCE.enabled) drawFrame(Math.round((p / (WAYPOINTS - 1)) * (SEQUENCE.count - 1)), holdAt(p));
+  if (SEQUENCE.enabled) drawFrame(Math.round((p / (WAYPOINTS - 1)) * (SEQUENCE.count - 1)));
   else renderStills(p);
   renderCaptions(p);
 }
@@ -165,6 +166,7 @@ if (SEQUENCE.enabled) {
   stage.classList.add("use-sequence");
   sizeCanvas();
   loadSequence();
+  loadStills();
   window.addEventListener("resize", () => { sizeCanvas(); update(); });
 }
 
