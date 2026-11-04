@@ -34,10 +34,19 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 
 // Fortschritt 0 … WAYPOINTS-1 über die Höhe der Tour-Sektion
+// Jeder Abschnitt zwischen zwei Punkten: an beiden Enden ein kurzer Stopp (je 5 Bilder),
+// dazwischen läuft die Fahrt mit weicher Beschleunigung. Die Bildanzahl bleibt gleich.
+const HOLD_FRAMES = 5;
+const HOLD = HOLD_FRAMES / (STEP + 2 * HOLD_FRAMES);           // Anteil eines Abschnitts pro Stopp
+const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);          // sanft an- und auslaufen
+
 function progress() {
   const r = tour.getBoundingClientRect();
   const span = tour.offsetHeight - window.innerHeight;
-  return clamp(-r.top / span, 0, 1) * (WAYPOINTS - 1);
+  const s = clamp(-r.top / span, 0, 1) * (WAYPOINTS - 1);
+  const k = Math.min(Math.floor(s), WAYPOINTS - 2);
+  const t = clamp((s - k - HOLD) / (1 - 2 * HOLD), 0, 1);
+  return k + ease(t);
 }
 
 function scrollToWaypoint(i) {
@@ -171,7 +180,7 @@ if (SEQUENCE.enabled) {
 }
 
 if (window.Lenis && !reduced) {
-  lenis = new Lenis({ lerp: 0.075, smoothWheel: true });
+  lenis = new Lenis({ lerp: 0.1, smoothWheel: true, wheelMultiplier: 1.1, touchMultiplier: 1.4 });
   lenis.on("scroll", update);
   const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
   requestAnimationFrame(raf);

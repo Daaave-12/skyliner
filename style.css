@@ -35,7 +35,7 @@ h1, h2 { font-family: var(--serif); font-weight: 500; line-height: 1.05; margin:
 }
 
 /* ---------- Scroll-Bühne ---------- */
-#tour { position: relative; height: calc(11 * 100vh); }
+#tour { position: relative; height: calc(8.5 * 100vh); }   /* 10 Abschnitte à 75vh + Bildschirmhöhe */
 .stage {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   background: radial-gradient(ellipse at 62% 45%, var(--bg-glow) 0%, var(--bg) 45%, var(--bg-deep) 100%);
