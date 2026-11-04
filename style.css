@@ -95,7 +95,7 @@ h1, h2 { font-family: var(--serif); font-weight: 500; line-height: 1.05; margin:
 .making h2 { font-size: clamp(2.2rem, 4.5vw, 3.6rem); }
 .intro { max-width: 640px; color: var(--ink-soft); font-size: 1.05rem; margin: 0 0 48px; }
 .gallery { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-flow: dense; gap: 16px; }
-.gallery .wide { grid-column: span 2; display: flex; flex-direction: column; }
+.gallery .wide { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; }
 .gallery .wide img { aspect-ratio: auto; flex: 1; min-height: 0; }
 .gallery figure { margin: 0; }
 .gallery img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; border-radius: 3px; }
