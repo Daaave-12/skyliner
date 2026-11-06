@@ -13,7 +13,9 @@ Scroll-Seite zum Meisterstück. Beim Scrollen fährt die Kamera die 11 Punkte de
 | `frames/m/` | dieselbe Fahrt fürs Handy (900 × 1125, ca. 14 MB) |
 | `frames/s/` | 11 scharfe 4K-Standbilder (2160 × 2700), je eins pro Kamerapunkt |
 | `img/` | Modellfotos für die Entstehung |
-| `qr_skyliner.png` / `.svg` | QR-Code auf `https://daaave-12.github.io/skyliner/` |
+| `qr_derskyliner.png` / `.svg` | QR-Code auf `https://derskyliner.at` |
+| `qr_skyliner.png` / `.svg` | alter QR-Code auf `https://daaave-12.github.io/skyliner/`, leitet automatisch auf derskyliner.at weiter |
+| `CNAME` | eigene Domain für GitHub Pages |
 
 ## Auf GitHub Pages stellen
 
@@ -33,3 +35,7 @@ Die Fahrt stammt aus `Skyliner_Webseite.blend` und wurde in 4K (2160 × 2700) oh
 An jedem Punkt ersetzt die Seite genau dieses eine Bild durch das 4K-Standbild aus `frames/s/`, ohne Überblendung. Dazwischen laufen die verkleinerten Bilder aus `frames/d` (Computer) bzw. `frames/m` (Handy).
 
 Neu rendern: Frames 1 bis 1201, Frame Step 3, WebP. Desktop- und Handy-Bilder sind die 4K-Bilder verkleinert, die Standbilder sind die 4K-Bilder der Frames 1 + 120 × Punkt.
+
+## Eigene Domain derskyliner.at
+
+Die Domain liegt bei hosttech. DNS: vier A-Einträge für `derskyliner.at` auf 185.199.108.153, .109.153, .110.153, .111.153 und ein CNAME `www` auf `daaave-12.github.io`. Die Datei `CNAME` im Repository sagt GitHub Pages, dass die Seite unter derskyliner.at läuft; die alte github.io-Adresse leitet automatisch dorthin weiter.
