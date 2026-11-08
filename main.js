@@ -1,15 +1,15 @@
 // Skyliner – scroll-gekoppelte Kamerafahrt
 //
-// Der Scroll-Fortschritt wählt das Bild der Blender-Kamerafahrt (401 Bilder, 11 Kamerapunkte).
+// Der Scroll-Fortschritt wählt das Bild der Blender-Kamerafahrt (481 Bilder, 13 Kamerapunkte).
 // An jedem Kamerapunkt wird genau dieses eine Bild durch ein scharfes 4K-Standbild ersetzt.
 
 const SEQUENCE = {
   enabled: true,
-  count: 401,                       // Blender Frame 1–1201 mit Frame Step 3
+  count: 481,                       // Blender Frame 1–1441 mit Frame Step 3
   src: (i) => `frames/${window.innerWidth < 760 ? "m" : "d"}/${String(1 + 3 * i).padStart(4, "0")}.webp`,
 };
 
-const WAYPOINTS = 11;
+const WAYPOINTS = 13;
 
 // Scharfe 4K-Standbilder: an jedem Kamerapunkt ersetzt genau ein Bild der Fahrt (ohne Überblendung)
 const STEP = (SEQUENCE.count - 1) / (WAYPOINTS - 1);   // 40 Bilder zwischen zwei Punkten

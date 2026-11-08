@@ -1,6 +1,6 @@
 # Skyliner-Webseite
 
-Scroll-Seite zum Meisterstück. Beim Scrollen fährt die Kamera die 11 Punkte der Blender-Kamerafahrt ab (R01 bis R10, am Schluss zurück zur offenen Hero-Ansicht), zu jedem Punkt blendet ein Text ein. Darunter folgen die Entstehung (1:10-Modell) und ein paar Eckdaten.
+Scroll-Seite zum Meisterstück. Beim Scrollen fährt die Kamera die 13 Punkte der Blender-Kamerafahrt ab (vom geschlossenen Turm über das Öffnen bis zu den drei Laden, am Schluss zurück zur offenen Frontansicht), zu jedem Punkt blendet ein Text ein. Darunter folgen die Entstehung (1:10-Modell) und ein paar Eckdaten.
 
 ## Dateien
 
@@ -9,9 +9,9 @@ Scroll-Seite zum Meisterstück. Beim Scrollen fährt die Kamera die 11 Punkte de
 | `index.html` | Seite mit allen Texten. Die Texte stehen in den `<article class="cap">`-Blöcken und lassen sich direkt ändern. |
 | `style.css` | Gestaltung |
 | `main.js` | Scroll-Logik, Standbilder oder Bildsequenz |
-| `frames/d/` | Kamerafahrt, 401 Bilder für Desktop (1440 × 1800, ca. 31 MB) |
-| `frames/m/` | dieselbe Fahrt fürs Handy (900 × 1125, ca. 14 MB) |
-| `frames/s/` | 11 scharfe 4K-Standbilder (2160 × 2700), je eins pro Kamerapunkt |
+| `frames/d/` | Kamerafahrt, 481 Bilder für Desktop (1440 × 1800) |
+| `frames/m/` | dieselbe Fahrt fürs Handy (900 × 1125) |
+| `frames/s/` | 13 scharfe 4K-Standbilder (2160 × 2700), je eins pro Kamerapunkt |
 | `img/` | Modellfotos für die Entstehung |
 | `qr_derskyliner.png` / `.svg` | QR-Code auf `https://derskyliner.at` |
 | `qr_skyliner.png` / `.svg` | alter QR-Code auf `https://daaave-12.github.io/skyliner/`, leitet automatisch auf derskyliner.at weiter |
@@ -28,13 +28,15 @@ Der QR-Code zeigt genau auf diese Adresse. Heißt das Repository anders, muss de
 
 ## Kamerafahrt
 
-Die Fahrt stammt aus `Skyliner_Webseite.blend` und wurde in 4K (2160 × 2700) ohne Motion Blur gerendert, die Originale liegen auf dem PC im Ordner `frames4k`. Die 11 Kamerapunkte (Frame 1, 121, 241 … 1201):
+Die Fahrt stammt aus `Skyliner_Webseite_v2.blend` (neues Modell v40) und wurde in 4K (2160 × 2700) ohne Motion Blur gerendert, die Originale liegen auf dem PC im Ordner `frames4k_v2`. Die 13 Kamerapunkte (Frame 1, 121, 241 … 1441):
 
-0 Start von rechts auf 1,85 m · 1 linke Seite · 2 Material · 3 Griff · 4 Sockel · 5 Öffnen · 6 Innenraum · 7 Andenken · 8 Wein und Whisky · 9 Schubladen von schräg oben · 10 Schluss frontal
+0 Start von rechts auf 1,85 m · 1 linke Seite · 2 Material · 3 Griff · 4 Sockel · 5 Öffnen (Türen schwingen bis 129° auf, Innenlicht geht an) · 6 Innenraum · 7 Andenken · 8 Wein (Drehteller dreht 72°) · 9 Lade 1 Bar · 10 Lade 2 Humidor · 11 Lade 3 Gläser · 12 Schluss frontal
+
+Die Laden öffnen jeweils einzeln um 30 cm, ihr LED-Licht geht dabei an und beim Schließen wieder aus.
 
 An jedem Punkt ersetzt die Seite genau dieses eine Bild durch das 4K-Standbild aus `frames/s/`, ohne Überblendung. Dazwischen laufen die verkleinerten Bilder aus `frames/d` (Computer) bzw. `frames/m` (Handy).
 
-Neu rendern: Frames 1 bis 1201, Frame Step 3, WebP. Desktop- und Handy-Bilder sind die 4K-Bilder verkleinert, die Standbilder sind die 4K-Bilder der Frames 1 + 120 × Punkt.
+Neu rendern: Frames 1 bis 1441, Frame Step 3, WebP. Desktop- und Handy-Bilder sind die 4K-Bilder verkleinert, die Standbilder sind die 4K-Bilder der Frames 1 + 120 × Punkt.
 
 ## Eigene Domain derskyliner.at
 
