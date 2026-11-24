@@ -96,6 +96,6 @@ for s in json.load(open(shots)):
     cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler(); cam.data.lens = s.get('lens', 70); cam.data.clip_start = 0.005
     hide = set(s.get('hide', []))
     for k, o in objs.items(): o.hide_render = any(k == h or k.startswith(h + '_') for h in hide)
-    sc.render.filepath = os.path.join(out, s['name'] + '.png'); bpy.ops.render.render(write_still=True); print('rendered', s['name'], flush=True)
+    sc.render.filepath = os.path.abspath(os.path.join(out, s['name'] + '.png')); bpy.ops.render.render(write_still=True); print('rendered', s['name'], flush=True)
     c2 = cam.copy(); c2.data = cam.data.copy(); c2.name = s['name']; sc.collection.objects.link(c2)   # Kamera je Bild in der .blend
 save('')
