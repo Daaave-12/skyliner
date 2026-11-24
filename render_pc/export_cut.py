@@ -57,7 +57,7 @@ for cn, (ax, val, side) in CUTS.items():
         if mat_of(p, None) is None and p['mat'] not in ('3SP_NA', '3SP_NA30'): continue
         if (side > 0 and hi <= val) or (side < 0 and lo >= val): continue
         sh = S[i] if (side > 0 and lo >= val) or (side < 0 and hi <= val) else BRepAlgoAPI_Common(S[i], kb).Shape()
-        BRepMesh_IncrementalMesh(sh, 0.3, False, 0.3, True)
+        BRepMesh_IncrementalMesh(sh, 0.05, False, 0.12, True)
         ex = TopExp_Explorer(sh, TopAbs_FACE)
         while ex.More():
             f = TopoDS.Face(ex.Current()); loc = TopLoc_Location(); tri = BRep_Tool.Triangulation_s(f, loc)
@@ -81,7 +81,7 @@ for m, L in buf.items():
     with open(f'{out}/{m}.obj', 'w') as fo:
         off = 0
         for V, F, i in L:
-            for v in V: fo.write('v %.3f %.3f %.3f\n' % (v[0]/1000, v[1]/1000, v[2]/1000))
+            for v in V: fo.write('v %.6f %.6f %.6f\n' % (v[0]/1000, v[1]/1000, v[2]/1000))
             for a1, b1, c1 in F: fo.write(f'f {a1+off} {b1+off} {c1+off}\n')
             off += len(V)
 print({m: len(L) for m, L in buf.items()})
