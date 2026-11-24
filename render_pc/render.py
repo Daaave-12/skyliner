@@ -93,9 +93,13 @@ for s in json.load(open(shots)):
     if ONLY and s['name'] not in ONLY: continue
     sc.render.resolution_x, sc.render.resolution_y = s.get('res', (1000, 800)); sc.render.resolution_percentage = 100
     t = Vector(s['target']); d = Vector(s['dir']).normalized(); cam.location = t - d*s.get('dist', 3.0)
-    cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler(); cam.data.lens = s.get('lens', 70); cam.data.clip_start = 0.005
+    cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler(); cam.data.lens = s.get('lens', 70); cam.data.clip_start = s.get('clip', 0.005)
     hide = set(s.get('hide', []))
-    for k, o in objs.items(): o.hide_render = any(k == h or k.startswith(h + '_') for h in hide)
+    only = s.get('only')
+    for k, o in objs.items():
+        teil = (k[0] == 'p' and k[1].isdigit()) or k[0] == 'x'     # Einzelteile (p..) und Schnittmodelle (x..) nur, wenn angefordert
+        if only is not None: o.hide_render = not any(k.startswith(h + '_') for h in only)
+        else: o.hide_render = teil or any(k == h or k.startswith(h + '_') for h in hide)
     sc.render.filepath = os.path.abspath(os.path.join(out, s['name'] + '.png')); bpy.ops.render.render(write_still=True); print('rendered', s['name'], flush=True)
     c2 = cam.copy(); c2.data = cam.data.copy(); c2.name = s['name']; sc.collection.objects.link(c2)   # Kamera je Bild in der .blend
 save('')
