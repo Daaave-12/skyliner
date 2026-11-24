@@ -2,7 +2,7 @@
 Aufruf am PC:  blender.exe -b -P render.py -- mesh_dir shots.json out_dir [samples] [nur_shot1,shot2]
 Speichert die Szene als Skyliner_Render_vNN.blend (Zwischenversionen) in out_dir."""
 import bpy, sys, json, os, math
-from mathutils import Vector
+from mathutils import Vector, Matrix
 A = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
 mesh, shots, out = A[0], A[1], A[2]; SAMPLES = int(A[3]) if len(A) > 3 else 96
 ONLY = set(A[4].split(',')) if len(A) > 4 and A[4] else None
@@ -85,6 +85,65 @@ sc.cycles.samples = SAMPLES; sc.cycles.use_denoising = True
 sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'AgX - Base Contrast' if False else 'None'
 sc.render.film_transparent = False; sc.view_settings.exposure = -1.5
 bpy.ops.object.camera_add(); cam = bpy.context.object; sc.camera = cam
+
+from bpy_extras.object_utils import world_to_camera_view
+def wbox(obs):
+    P = [o.matrix_world @ Vector(c) for o in obs for c in o.bound_box]
+    return Vector([min(p[i] for p in P) for i in range(3)]), Vector([max(p[i] for p in P) for i in range(3)]), P
+def arrange(s):
+    """Einzelteile eines Blatts geordnet auf den Boden legen: je Bauteil (p<Pos>-<Nr>_*) eine Gruppe, Regalpacken in Reihen, Abstand 5 cm"""
+    groups = {}
+    for k, o in objs.items():
+        if not o.hide_render and k[0] == 'p': groups.setdefault(k.split('_', 1)[0], []).append(o)
+    moved = []
+    for g, obs in groups.items():      # hohe Platten (Seitenflächen, Türen) flach hinlegen, Nussseite oben
+        lo, hi, _ = wbox(obs)
+        if hi.z - lo.z < 0.5: continue
+        import numpy as np
+        V = np.array([tuple(o.matrix_world @ v.co) for o in obs for v in o.data.vertices]); c = V.mean(0)
+        w, E = np.linalg.eigh(np.cov((V - c).T)); n = E[:, 0]
+        nu = [o for o in obs if o.name.endswith('_nuss')]
+        if nu:
+            Vn = np.array([tuple(o.matrix_world @ v.co) for o in nu for v in o.data.vertices])
+            if (Vn.mean(0) - c) @ n < 0: n = -n
+        R = Vector(tuple(n)).rotation_difference(Vector((0, 0, 1))).to_matrix().to_4x4()
+        T = Matrix.Translation(Vector(tuple(c))); M = T @ R @ T.inverted()
+        for o in obs: moved.append((o, o.matrix_world.copy())); o.matrix_world = M @ o.matrix_world
+    bpy.context.view_layer.update()
+    boxes = []
+    for g, obs in groups.items():
+        lo, hi, _ = wbox(obs); boxes.append((g, lo, hi))
+    boxes.sort(key=lambda b: (-int(b[0][1:].split('-')[0]) * 0, -(b[2].x - b[1].x)))
+    boxes.sort(key=lambda b: int(b[0][1:].split('-')[0]))
+    gap = 0.05; area = sum((hi.x - lo.x + gap)*(hi.y - lo.y + gap) for _, lo, hi in boxes)
+    rowmax = max(max(hi.x - lo.x for _, lo, hi in boxes), math.sqrt(area)*1.5)
+    x = 0.0; y = 0.0; rowd = 0.0; place = []
+    for g, lo, hi in boxes:
+        w = hi.x - lo.x; dpt = hi.y - lo.y
+        if x > 0 and x + w > rowmax: x = 0.0; y += rowd + gap; rowd = 0.0
+        place.append((g, lo, hi, x, y)); x += w + gap; rowd = max(rowd, dpt)
+    W = max(p[3] + p[2].x - p[1].x for p in place); Dp = max(p[4] + p[2].y - p[1].y for p in place)
+    for g, lo, hi, x, y in place:
+        off = Vector((x - W/2 - lo.x, y - Dp/2 - lo.y, -0.1505 - lo.z))
+        for o in groups[g]:
+            if not any(m[0] is o for m in moved): moved.append((o, o.matrix_world.copy()))
+            o.location = o.location + off
+    bpy.context.view_layer.update()
+    return moved
+def frame(s, d, margin=0.86):
+    """Kamera auf alle sichtbaren Objekte ausrichten: Ziel = Boxmitte, Abstand so, dass alles mit Rand ins Bild passt"""
+    obs = [o for k, o in objs.items() if not o.hide_render]
+    lo, hi, P = wbox(obs); t = (lo + hi)/2; dist = (hi - lo).length*2.0
+    for _ in range(30):
+        cam.location = t - d*dist; bpy.context.view_layer.update()
+        q = [world_to_camera_view(sc, cam, p) for p in P]
+        ext = max(max(abs(v.x - 0.5), abs(v.y - 0.5)) for v in q)*2
+        cx = (min(v.x for v in q) + max(v.x for v in q))/2 - 0.5; cy = (min(v.y for v in q) + max(v.y for v in q))/2 - 0.5
+        if abs(ext - margin) < 0.01 and abs(cx) < 0.01 and abs(cy) < 0.01: break
+        R = cam.matrix_world.to_3x3(); w = 2*dist*math.tan(cam.data.angle/2)
+        t = t + R @ Vector((cx*w, cy*w*sc.render.resolution_y/sc.render.resolution_x, 0))
+        dist *= (ext/margin)**0.7
+    cam.location = t - d*dist
 def save(tag):
     try: bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(os.path.join(out, f'Skyliner_Render_{VER}{tag}.blend')), copy=True); print('gespeichert', tag, flush=True)
     except Exception as e: print('speichern fehlgeschlagen', e, flush=True)
@@ -98,8 +157,11 @@ for s in json.load(open(shots)):
     only = s.get('only')
     for k, o in objs.items():
         teil = (k[0] == 'p' and k[1].isdigit()) or k[0] == 'x'     # Einzelteile (p..) und Schnittmodelle (x..) nur, wenn angefordert
-        if only is not None: o.hide_render = not any(k.startswith(h + '_') for h in only)
+        if only is not None: o.hide_render = k.split('_', 1)[0].split('-')[0] not in only
         else: o.hide_render = teil or any(k == h or k.startswith(h + '_') for h in hide)
+    moved = arrange(s) if s.get('arrange') else []
+    if s.get('auto'): frame(s, d)
     sc.render.filepath = os.path.abspath(os.path.join(out, s['name'] + '.png')); bpy.ops.render.render(write_still=True); print('rendered', s['name'], flush=True)
+    for o, mw in moved: o.matrix_world = mw
     c2 = cam.copy(); c2.data = cam.data.copy(); c2.name = s['name']; sc.collection.objects.link(c2)   # Kamera je Bild in der .blend
 save('')

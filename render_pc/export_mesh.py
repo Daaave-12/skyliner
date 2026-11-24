@@ -60,7 +60,7 @@ for p in P:
             for k in range(1, tri.NbTriangles()+1):
                 a1, b1, c1 = tri.Triangle(k).Get(); F.append((a1, c1, b1) if rev else (a1, b1, c1))
             buf.setdefault(grp_of(p) + '_' + m, []).append((V, F, i))
-            if p.get('pos') and p['kat'] == 'holz' and p['pos'] <= 47: buf.setdefault(f"p{p['pos']}_" + m, []).append((V, F, i))
+            if p.get('pos') and p['kat'] == 'holz' and p['pos'] <= 47: buf.setdefault(f"p{p['pos']}-{i}_" + m, []).append((V, F, i))
         ex.Next()
 for m, L in buf.items():
     with open(f'{out}/{m}.obj', 'w') as fo:
